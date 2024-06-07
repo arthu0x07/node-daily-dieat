@@ -17,4 +17,16 @@ export class UserErrors extends Error {
       message: 'User cannot be created',
     })
   }
+
+  static notFoundOrInvalidPass(res: FastifyReply) {
+    return res.code(404).send({
+      message: 'User cannot be found or Password is invalid',
+    })
+  }
+
+  static anyUserFound(res: FastifyReply) {
+    return res.code(404).send({
+      message: 'Any users can be be found',
+    })
+  }
 }

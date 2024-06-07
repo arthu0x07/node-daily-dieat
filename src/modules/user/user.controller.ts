@@ -1,11 +1,15 @@
 import { FastifyInstance } from 'fastify'
 import { $ref } from './user.schema'
-import { createUser } from './user.service'
+import { createUser, getUsers, login } from './user.service'
 
 export async function userController(app: FastifyInstance) {
-  app.get('/', (req, res) => {
-    res.send({ message: 'ping' })
-  })
+  app.get(
+    '/',
+    {
+      preHandler: [app.authenticate],
+    },
+    getUsers,
+  )
 
   app.post(
     '/register',
@@ -20,7 +24,18 @@ export async function userController(app: FastifyInstance) {
     createUser,
   )
 
-  app.post('/login', () => {})
+  app.post(
+    '/login',
+    {
+      schema: {
+        body: $ref('loginSchema'),
+        response: {
+          201: $ref('loginResponseSchema'),
+        },
+      },
+    },
+    login,
+  )
 
   app.delete('/logout', () => {})
 }

@@ -1,9 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { randomUUID } from 'crypto'
-import { hash } from 'bcrypt'
+import { hash, compare } from 'bcrypt'
 
 import { knex } from '@/database'
-import { CreateUserInput } from './user.schema'
+import { CreateUserInput, LoginUserInput } from './user.schema'
 import { UserErrors } from './user.errors'
 
 export async function createUser(
@@ -31,5 +31,50 @@ export async function createUser(
     return UserErrors.internalError(res)
   }
 
-  res.status(204).send()
+  return res.status(204).send()
+}
+
+export async function login(
+  req: FastifyRequest<{
+    Body: LoginUserInput
+  }>,
+  res: FastifyReply,
+) {
+  const { email, password } = req.body
+
+  const userData = (await knex('users').where('email', email).select('*'))[0]
+
+  if (!userData) {
+    return UserErrors.notFoundOrInvalidPass(res)
+  }
+
+  const isPasswordValid = await compare(password, userData.password)
+
+  if (!isPasswordValid) {
+    return UserErrors.notFoundOrInvalidPass(res)
+  }
+
+  const payload = {
+    sub: userData.id,
+  }
+
+  const token = req.jwt.sign(payload)
+
+  res.setCookie('access_token', token, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+  })
+
+  return res.send({ accessToken: token })
+}
+
+export async function getUsers(req: FastifyRequest, res: FastifyReply) {
+  const usersData = await knex('users').select('*')
+
+  if (!usersData) {
+    return UserErrors.anyUserFound(res)
+  }
+
+  return res.status(200).send(usersData)
 }
