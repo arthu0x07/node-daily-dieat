@@ -36,6 +36,4 @@ export async function userController(app: FastifyInstance) {
     },
     login,
   )
-
-  app.delete('/logout', () => {})
 }
