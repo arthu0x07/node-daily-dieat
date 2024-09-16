@@ -7,6 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "knex": "node --no-warnings --import tsx ./node_modules/knex/bin/cli.js",
     "knex:migrate:latest": "npm run knex migrate:latest",
+    "knex:migrate:up": "npm run knex migrate:up",
     "lint": "eslint src --ext .ts --fix",
     "test": "vitest",
     "build": "tsup src --out-dir build"
