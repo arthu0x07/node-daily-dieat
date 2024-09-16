@@ -40,5 +40,26 @@ export async function createMeals(
     return MealsErrors.internalError(res)
   }
 
-  return res.status(204).send(createdMeals)
+  return res.status(200).send(createdMeals)
+}
+
+export async function getMeals(req: FastifyRequest, res: FastifyReply) {
+  const token = req.cookies.access_token
+
+  if (!token) {
+    return MealsErrors.notFoundOrInvalidPass(res)
+  }
+
+  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const tokenUserId = decoded.id
+
+  const meals = await knex('meals').select('*').where('userId', tokenUserId)
+
+  console.log(meals)
+
+  if (!meals || meals.length === 0) {
+    return MealsErrors.anyMealsFound(res)
+  }
+
+  return res.status(200).send(meals)
 }
