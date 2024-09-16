@@ -30,8 +30,11 @@ export type CreateMealsInput = z.infer<typeof createMealsSchema>
 
 const createMealsResponseSchema = z.object({
   id: z.string(),
-  email: z.string(),
+  userId: z.string(),
   name: z.string(),
+  description: z.string(),
+  isOnDiet: z.boolean(),
+  date: z.date(),
 })
 
 export const { schemas: mealsSchemas, $ref } = buildJsonSchemas(
