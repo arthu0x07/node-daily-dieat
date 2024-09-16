@@ -55,8 +55,12 @@ export async function login(
   }
 
   const payload = {
-    sub: userData.id,
+    id: userData.id,
+    email: userData.email,
+    name: userData.name,
   }
+
+  console.log('(Login Request Payload)', payload)
 
   const token = req.jwt.sign(payload)
 
