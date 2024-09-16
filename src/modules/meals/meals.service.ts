@@ -25,18 +25,20 @@ export async function createMeals(
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const createdMeals = await knex('meals').insert({
-    id: randomUUID(),
-    userId,
-    date,
-    description,
-    isOnDiet,
-    name,
-  })
+  const createdMeals = await knex('meals')
+    .insert({
+      id: randomUUID(),
+      userId,
+      date,
+      description,
+      isOnDiet,
+      name,
+    })
+    .returning('*')
 
   if (!createdMeals) {
     return MealsErrors.internalError(res)
   }
 
-  return res.status(204).send()
+  return res.status(204).send(createdMeals)
 }
