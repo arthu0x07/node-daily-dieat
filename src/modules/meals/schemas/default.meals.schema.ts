@@ -6,7 +6,6 @@ const mealSchema = z.object({
   name: z.string(),
   description: z.string(),
   isOnDiet: z.boolean(),
-  date: z.string().date(),
   createdAt: z.string().date().optional(),
   updatedAt: z.string().date().optional(),
 })
@@ -16,7 +15,6 @@ const mealSchemaInput = z.object({
   name: z.string(),
   description: z.string(),
   isOnDiet: z.boolean(),
-  date: z.string().date(),
 })
 
 const mealSchemaResponse = mealSchema
