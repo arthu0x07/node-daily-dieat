@@ -1,6 +1,11 @@
 import { FastifyInstance } from 'fastify'
 import { $ref } from './meals.schema'
-import { createMeals, getAllMealsByUser, getMealById } from './meals.service'
+import {
+  createMeals,
+  deleteMealById,
+  getAllMealsByUser,
+  getMealById,
+} from './meals.service'
 
 export async function mealsController(app: FastifyInstance) {
   app.post(
@@ -39,5 +44,15 @@ export async function mealsController(app: FastifyInstance) {
       },
     },
     getMealById,
+  )
+
+  app.delete(
+    '/:id',
+    {
+      schema: {
+        params: $ref('getMealByIdQuerySchema'),
+      },
+    },
+    deleteMealById,
   )
 }

@@ -95,3 +95,31 @@ export async function getMealById(
 
   return res.status(200).send(meals)
 }
+
+export async function deleteMealById(
+  req: FastifyRequest<{
+    Params: { id: string }
+  }>,
+  res: FastifyReply,
+) {
+  const { id } = req.params
+  const token = req.cookies.access_token
+
+  if (!token) {
+    return MealsErrors.notFoundOrInvalidPass(res)
+  }
+
+  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const tokenUserId = decoded.id
+
+  const meals = await knex('meals')
+    .delete('*')
+    .where('id', id)
+    .andWhere('userId', tokenUserId)
+
+  if (!meals || meals.length === 0) {
+    return MealsErrors.anyMealsFound(res)
+  }
+
+  return res.status(204).send()
+}

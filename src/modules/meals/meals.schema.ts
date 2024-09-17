@@ -4,6 +4,7 @@ import {
   mealSchemaResponse,
   mealsListSchemaResponse,
   getMealByIdQuerySchema,
+  deleteMealByIdQuerySchema,
 } from './schemas/default.meals.schema'
 
 const { schemas: mealsSchemas, $ref } = buildJsonSchemas(
@@ -12,6 +13,7 @@ const { schemas: mealsSchemas, $ref } = buildJsonSchemas(
     mealSchemaResponse,
     mealsListSchemaResponse,
     getMealByIdQuerySchema,
+    deleteMealByIdQuerySchema,
   },
   {
     $id: 'meals',

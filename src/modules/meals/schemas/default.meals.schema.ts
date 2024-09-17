@@ -27,10 +27,15 @@ const getMealByIdQuerySchema = z.object({
   id: z.string(),
 })
 
+const deleteMealByIdQuerySchema = z.object({
+  id: z.string(),
+})
+
 export {
   mealSchema,
   mealSchemaInput,
   mealSchemaResponse,
   mealsListSchemaResponse,
   getMealByIdQuerySchema,
+  deleteMealByIdQuerySchema,
 }
