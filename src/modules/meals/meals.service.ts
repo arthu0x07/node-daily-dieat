@@ -6,13 +6,11 @@ import { knex } from '@/database'
 import { MealsErrors } from './meals.errors'
 import { CreateMealRequest } from './meals.type'
 
-import { formatDate } from '@/utils/formatDate'
-
 export async function createMeals(
   req: FastifyRequest<{ Body: CreateMealRequest }>,
   res: FastifyReply,
 ) {
-  const { date, description, isOnDiet, name, userId } = req.body
+  const { description, isOnDiet, name, userId } = req.body
 
   const token = req.cookies.access_token
 
@@ -31,7 +29,8 @@ export async function createMeals(
     .insert({
       id: randomUUID(),
       userId,
-      date,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       description,
       isOnDiet,
       name,
@@ -91,7 +90,7 @@ export async function getMealById(
     .andWhere('userId', tokenUserId)
     .first()
 
-  if (!meals || meals.length === 0) {
+  if (!meals) {
     return MealsErrors.anyMealsFound(res)
   }
 
@@ -150,15 +149,13 @@ export async function updateMeals(
     return MealsErrors.anyMealsFound(res)
   }
 
-  const updatedDate = formatDate(new Date())
-
   const updatedMeal = await knex('meals')
     .update({
       userId,
       description,
       isOnDiet,
       name,
-      date: updatedDate,
+      updatedAt: new Date().toISOString(),
     })
     .where('id', id)
     .andWhere('userId', tokenUserId)
