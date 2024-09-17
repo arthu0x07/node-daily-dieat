@@ -1,14 +1,20 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
-import { FastifyJWT } from '@fastify/jwt'
+import { UserPayload } from '@/@types/fastify'
+import {
+  CreateMealsRequest,
+  CreateMealsReply,
+  GetMealByIdRequest,
+  GetMealByIdReply,
+  DeleteMealByIdRequest,
+  DeleteMealByIdReply,
+} from '@/@types/route-types'
 import { randomUUID } from 'crypto'
-
+import { FastifyRequest, FastifyReply } from 'fastify'
 import { knex } from '@/database'
 import { MealsErrors } from './meals.errors'
-import { CreateMealRequest } from './meals.type'
 
 export async function createMeals(
-  req: FastifyRequest<{ Body: CreateMealRequest }>,
-  res: FastifyReply,
+  req: CreateMealsRequest,
+  res: CreateMealsReply,
 ) {
   const { description, isOnDiet, name, userId } = req.body
 
@@ -18,7 +24,7 @@ export async function createMeals(
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
   if (userId !== tokenUserId) {
@@ -37,11 +43,13 @@ export async function createMeals(
     })
     .returning('*')
 
+  console.log(createdMeals)
+
   if (!createdMeals) {
     return MealsErrors.internalError(res)
   }
 
-  return res.status(200).send(createdMeals)
+  return res.status(201).send(...createdMeals)
 }
 
 export async function getAllMealsByUser(
@@ -54,7 +62,7 @@ export async function getAllMealsByUser(
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
   const meals = await knex('meals').select('*').where('userId', tokenUserId)
@@ -63,45 +71,47 @@ export async function getAllMealsByUser(
     return MealsErrors.anyMealsFound(res)
   }
 
+  if (!meals) {
+    return MealsErrors.internalError(res)
+  }
+
   return res.status(200).send(meals)
 }
 
 export async function getMealById(
-  req: FastifyRequest<{
-    Params: { id: string }
-  }>,
-  res: FastifyReply,
+  req: GetMealByIdRequest,
+  res: GetMealByIdReply,
 ) {
   const { id } = req.params
   const token = req.cookies.access_token
-
-  console.log(id)
 
   if (!token) {
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
-  const meals = await knex('meals')
+  const meal = await knex('meals')
     .select('*')
     .where('id', id)
     .andWhere('userId', tokenUserId)
     .first()
 
-  if (!meals) {
+  if (!meal) {
     return MealsErrors.anyMealsFound(res)
   }
 
-  return res.status(200).send(meals)
+  if (!meal) {
+    return MealsErrors.internalError(res)
+  }
+
+  return res.status(200).send(meal)
 }
 
 export async function deleteMealById(
-  req: FastifyRequest<{
-    Params: { id: string }
-  }>,
-  res: FastifyReply,
+  req: DeleteMealByIdRequest,
+  res: DeleteMealByIdReply,
 ) {
   const { id } = req.params
   const token = req.cookies.access_token
@@ -110,27 +120,28 @@ export async function deleteMealById(
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
-  const meals = await knex('meals')
-    .delete('*')
+  const result = await knex('meals')
+    .delete()
     .where('id', id)
     .andWhere('userId', tokenUserId)
 
-  if (!meals || meals.length === 0) {
+  if (result === 0) {
     return MealsErrors.anyMealsFound(res)
+  }
+
+  if (!result) {
+    return MealsErrors.internalError(res)
   }
 
   return res.status(204).send()
 }
 
 export async function updateMeals(
-  req: FastifyRequest<{
-    Params: { id: string }
-    Body: CreateMealRequest
-  }>,
-  res: FastifyReply,
+  req: CreateMealsRequest,
+  res: CreateMealsReply,
 ) {
   const { id } = req.params
   const { description, isOnDiet, name, userId } = req.body
@@ -140,7 +151,7 @@ export async function updateMeals(
     return MealsErrors.notFoundOrInvalidPass(res)
   }
 
-  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
   const isMealExists = await knex('meals').select('*').where('id', id).first()
