@@ -5,6 +5,7 @@ import {
   deleteMealById,
   getAllMealsByUser,
   getMealById,
+  updateMeals,
 } from './meals.service'
 
 export async function mealsController(app: FastifyInstance) {
@@ -54,5 +55,19 @@ export async function mealsController(app: FastifyInstance) {
       },
     },
     deleteMealById,
+  )
+
+  app.put(
+    '/:id',
+    {
+      schema: {
+        params: $ref('getMealByIdQuerySchema'),
+        body: $ref('mealSchemaInput'),
+        response: {
+          200: $ref('mealSchemaResponse'),
+        },
+      },
+    },
+    updateMeals,
   )
 }

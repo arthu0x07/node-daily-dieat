@@ -1,10 +1,12 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyJWT } from '@fastify/jwt'
 import { randomUUID } from 'crypto'
 
 import { knex } from '@/database'
 import { MealsErrors } from './meals.errors'
-import { FastifyJWT } from '@fastify/jwt'
 import { CreateMealRequest } from './meals.type'
+
+import { formatDate } from '@/utils/formatDate'
 
 export async function createMeals(
   req: FastifyRequest<{ Body: CreateMealRequest }>,
@@ -122,4 +124,49 @@ export async function deleteMealById(
   }
 
   return res.status(204).send()
+}
+
+export async function updateMeals(
+  req: FastifyRequest<{
+    Params: { id: string }
+    Body: CreateMealRequest
+  }>,
+  res: FastifyReply,
+) {
+  const { id } = req.params
+  const { description, isOnDiet, name, userId } = req.body
+  const token = req.cookies.access_token
+
+  if (!token) {
+    return MealsErrors.notFoundOrInvalidPass(res)
+  }
+
+  const decoded = req.jwt.verify<FastifyJWT['user']>(token)
+  const tokenUserId = decoded.id
+
+  const isMealExists = await knex('meals').select('*').where('id', id).first()
+
+  if (!isMealExists) {
+    return MealsErrors.anyMealsFound(res)
+  }
+
+  const updatedDate = formatDate(new Date())
+
+  const updatedMeal = await knex('meals')
+    .update({
+      userId,
+      description,
+      isOnDiet,
+      name,
+      date: updatedDate,
+    })
+    .where('id', id)
+    .andWhere('userId', tokenUserId)
+    .returning('*')
+
+  if (!updatedMeal) {
+    return MealsErrors.internalError(res)
+  }
+
+  return res.status(200).send(...updatedMeal)
 }
