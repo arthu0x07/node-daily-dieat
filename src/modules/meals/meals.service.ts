@@ -3,11 +3,11 @@ import { randomUUID } from 'crypto'
 
 import { knex } from '@/database'
 import { MealsErrors } from './meals.errors'
-import { CreateMealsInput } from './meals.schema'
 import { FastifyJWT } from '@fastify/jwt'
+import { CreateMealRequest } from './meals.type'
 
 export async function createMeals(
-  req: FastifyRequest<{ Body: CreateMealsInput }>,
+  req: FastifyRequest<{ Body: CreateMealRequest }>,
   res: FastifyReply,
 ) {
   const { date, description, isOnDiet, name, userId } = req.body
@@ -57,8 +57,6 @@ export async function getAllMealsByUser(
   const tokenUserId = decoded.id
 
   const meals = await knex('meals').select('*').where('userId', tokenUserId)
-
-  console.log(meals)
 
   if (!meals || meals.length === 0) {
     return MealsErrors.anyMealsFound(res)

@@ -7,9 +7,9 @@ export async function mealsController(app: FastifyInstance) {
     '/register',
     {
       schema: {
-        body: $ref('createMealsSchema'),
+        body: $ref('mealSchemaInput'),
         response: {
-          201: $ref('createMealsResponseSchema'),
+          201: $ref('mealSchemaResponse'),
         },
       },
     },
@@ -21,7 +21,7 @@ export async function mealsController(app: FastifyInstance) {
     {
       schema: {
         response: {
-          200: $ref('getAllMealsByUserResponseSchema'),
+          200: $ref('mealsListSchemaResponse'),
         },
       },
     },
