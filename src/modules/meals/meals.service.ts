@@ -43,7 +43,10 @@ export async function createMeals(
   return res.status(200).send(createdMeals)
 }
 
-export async function getMeals(req: FastifyRequest, res: FastifyReply) {
+export async function getAllMealsByUser(
+  req: FastifyRequest,
+  res: FastifyReply,
+) {
   const token = req.cookies.access_token
 
   if (!token) {

@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { $ref } from './meals.schema'
-import { createMeals, getMeals } from './meals.service'
+import { createMeals, getAllMealsByUser } from './meals.service'
 
 export async function mealsController(app: FastifyInstance) {
   app.post(
@@ -21,10 +21,10 @@ export async function mealsController(app: FastifyInstance) {
     {
       schema: {
         response: {
-          200: $ref('getMealsResponseSchema'),
+          200: $ref('getAllMealsByUserResponseSchema'),
         },
       },
     },
-    getMeals,
+    getAllMealsByUser,
   )
 }

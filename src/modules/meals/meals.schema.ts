@@ -37,7 +37,7 @@ const createMealsResponseSchema = z.object({
   date: z.date(),
 })
 
-const getMealsSchema = z.object({
+const getAllMealsByUserSchema = z.object({
   id: z.string({
     required_error: 'ID is required',
     invalid_type_error: 'ID must be a string',
@@ -66,16 +66,16 @@ const getMealsSchema = z.object({
     .date(),
 })
 
-export type GetMealsResponse = z.infer<typeof getMealsSchema>
+export type getAllMealsByUserResponse = z.infer<typeof getAllMealsByUserSchema>
 
-const getMealsResponseSchema = z.array(getMealsSchema)
+const getAllMealsByUserResponseSchema = z.array(getAllMealsByUserSchema)
 
 export const { schemas: mealsSchemas, $ref } = buildJsonSchemas(
   {
     createMealsSchema,
     createMealsResponseSchema,
-    getMealsSchema,
-    getMealsResponseSchema,
+    getAllMealsByUserSchema,
+    getAllMealsByUserResponseSchema,
   },
   {
     $id: 'meals',
