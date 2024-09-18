@@ -1,13 +1,14 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+// user.service.ts
+import { FastifyRequest, FastifyReply } from 'fastify'
 import { randomUUID } from 'crypto'
 import { hash, compare } from 'bcrypt'
-
 import { knex } from '@/database'
-import { CreateUserInput, LoginUserInput } from './user.schema'
+
 import { UserErrors } from './user.errors'
+import { CreateUserRequest, LoginRequest, UsersListResponse } from './user.type'
 
 export async function createUser(
-  req: FastifyRequest<{ Body: CreateUserInput }>,
+  req: FastifyRequest<{ Body: CreateUserRequest }>,
   res: FastifyReply,
 ) {
   const { password, email, name } = req.body
@@ -20,24 +21,24 @@ export async function createUser(
 
   const hashPassword = await hash(password, 8)
 
-  const createdUser = await knex('users').insert({
-    id: randomUUID(),
-    name,
-    email,
-    password: hashPassword,
-  })
+  const [createdUser] = await knex('users')
+    .insert({
+      id: randomUUID(),
+      name,
+      email,
+      password: hashPassword,
+    })
+    .returning('*')
 
   if (!createdUser) {
     return UserErrors.internalError(res)
   }
 
-  return res.status(204).send()
+  return res.status(201).send(createdUser)
 }
 
 export async function login(
-  req: FastifyRequest<{
-    Body: LoginUserInput
-  }>,
+  req: FastifyRequest<{ Body: LoginRequest }>,
   res: FastifyReply,
 ) {
   const { email, password } = req.body
@@ -74,9 +75,9 @@ export async function login(
 }
 
 export async function getUsers(req: FastifyRequest, res: FastifyReply) {
-  const usersData = await knex('users').select('*')
+  const usersData: UsersListResponse = await knex('users').select('*')
 
-  if (!usersData) {
+  if (!usersData || usersData.length === 0) {
     return UserErrors.anyUserFound(res)
   }
 
