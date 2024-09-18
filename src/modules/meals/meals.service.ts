@@ -154,6 +154,10 @@ export async function updateMeals(
   const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
+  if (userId !== tokenUserId) {
+    return MealsErrors.notFoundOrInvalidPass(res)
+  }
+
   const isMealExists = await knex('meals').select('*').where('id', id).first()
 
   if (!isMealExists) {
@@ -162,7 +166,6 @@ export async function updateMeals(
 
   const updatedMeal = await knex('meals')
     .update({
-      userId,
       description,
       isOnDiet,
       name,
