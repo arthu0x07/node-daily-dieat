@@ -38,3 +38,27 @@ export type DeleteMealByIdRequest = FastifyRequest<{
 export type CreateMealsReply = FastifyReply
 export type GetMealByIdReply = FastifyReply
 export type DeleteMealByIdReply = FastifyReply
+
+// --
+
+export interface GetUserMetricsByIdParams {
+  userId: string
+}
+
+export interface UserMetricsResponse {
+  userId: string
+  totalMeals: number
+  totalMealsOnDiet: number
+  totalMealsOffDiet: number
+  bestSequenceOnDiet: number
+}
+
+export type GetUserMetricRequest = FastifyRequest<{
+  Params: GetUserMetricsByIdParams
+}>
+export type GetUserMetricResponse = FastifyReply
+
+export type UserMetricsRequest = FastifyRequest<{
+  Params: GetUserMetricsByIdParams
+}>
+export type UserMetricsReply = FastifyReply
