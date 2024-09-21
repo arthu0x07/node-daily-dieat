@@ -20,7 +20,6 @@ export async function getUserMetrics(
   const decoded = req.jwt.verify<UserPayload>(token)
   const tokenUserId = decoded.id
 
-  console.log('ping pong')
   const userId = req.params.userId
 
   if (userId !== tokenUserId) {

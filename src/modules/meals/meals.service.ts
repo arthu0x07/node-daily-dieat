@@ -43,8 +43,6 @@ export async function createMeals(
     })
     .returning('*')
 
-  console.log(createdMeals)
-
   if (!createdMeals) {
     return MealsErrors.internalError(res)
   }

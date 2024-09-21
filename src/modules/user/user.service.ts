@@ -61,8 +61,6 @@ export async function login(
     name: userData.name,
   }
 
-  console.log('(Login Request Payload)', payload)
-
   const token = req.jwt.sign(payload)
 
   res.setCookie('access_token', token, {
