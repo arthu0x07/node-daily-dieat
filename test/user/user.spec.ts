@@ -70,4 +70,23 @@ describe('User Routes', () => {
 
     expect(response.status).toEqual(404)
   })
+
+  it('should not be able to login with a wrong password', async () => {
+    const registerResponse = await request(app.server)
+      .post('/users/register')
+      .send({
+        email: 'test@gmail.com',
+        name: 'Test',
+        password: '123456',
+      })
+
+    expect(registerResponse.status).toEqual(201)
+
+    const loginResponse = await request(app.server).post('/users/login').send({
+      email: 'test@gmail.com',
+      password: '1234567',
+    })
+
+    expect(loginResponse.status).toEqual(404)
+  })
 })
