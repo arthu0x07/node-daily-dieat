@@ -61,4 +61,13 @@ describe('User Routes', () => {
 
     expect(loginResponse.body.accessToken).toBeDefined()
   })
+
+  it('should not be able to login with a non-existent user', async () => {
+    const response = await request(app.server).post('/users/login').send({
+      email: 'arthuwashere@gmail.com',
+      password: '123456',
+    })
+
+    expect(response.status).toEqual(404)
+  })
 })
