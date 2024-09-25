@@ -10,6 +10,7 @@
     "knex:migrate:up": "npm run knex migrate:up",
     "lint": "eslint src --ext .ts --fix",
     "test": "vitest",
+    "test:debug": "vitest --reporter=basic --disable-console-intercept",
     "build": "tsup src --out-dir build"
   },
   "keywords": [],
