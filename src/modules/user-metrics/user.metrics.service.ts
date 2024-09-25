@@ -49,7 +49,5 @@ export async function getUserMetrics(
     bestSequenceOnDiet,
   }
 
-  console.log(userMetrics)
-
   return res.status(200).send(userMetrics)
 }
