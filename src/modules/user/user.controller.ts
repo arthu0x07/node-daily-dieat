@@ -1,4 +1,3 @@
-// user.controller.ts
 import { FastifyInstance } from 'fastify'
 import { createUser, getUsers, login } from './user.service'
 import { $ref } from './user.schema'
