@@ -5,7 +5,7 @@ const mealSchema = z.object({
   userId: z.string(),
   name: z.string(),
   description: z.string(),
-  isOnDiet: z.boolean(),
+  isOnDiet: z.number(),
   createdAt: z.string().date().optional(),
   updatedAt: z.string().date().optional(),
 })

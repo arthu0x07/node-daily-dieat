@@ -13,7 +13,7 @@ declare module 'knex/types/tables' {
       time: string
       calories: number
       description: string
-      isOnDiet: boolean
+      isOnDiet: number
       createdAt: string
       updatedAt: string
     }
