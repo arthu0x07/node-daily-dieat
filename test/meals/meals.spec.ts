@@ -81,4 +81,24 @@ describe('User Routes', () => {
 
     expect(mealCreated).toMatchObject(meal)
   })
+
+  it('should not be able to create a new meal with an inexistent user', async () => {
+    const token = 'invalid_token'
+
+    const meal = {
+      name: `test${randomUUID()}`,
+      userId: randomUUID(),
+      description: 'test',
+      isOnDiet: 1,
+    }
+
+    const mealResponse = await request(app.server)
+      .post('/meals/register')
+      .set('Cookie', `access_token=${token}`)
+      .send(meal)
+
+    console.log(mealResponse.error)
+
+    expect(mealResponse.status).toEqual(500)
+  })
 })
