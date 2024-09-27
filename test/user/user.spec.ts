@@ -1,8 +1,8 @@
 import request from 'supertest'
-import { expect, it, beforeAll, afterAll, describe, beforeEach } from 'vitest'
-import { execSync } from 'node:child_process'
+import { expect, it, beforeAll, afterAll, describe } from 'vitest'
 import { app } from '@/app'
 import { knex } from '@/database'
+import { randomUUID } from 'node:crypto'
 
 describe('User Routes', () => {
   beforeAll(async () => {
@@ -13,39 +13,46 @@ describe('User Routes', () => {
     await app.close()
   })
 
-  beforeEach(async () => {
-    execSync('npm run knex migrate:rollback --all')
-    execSync('npm run knex migrate:latest')
-  })
-
   it('should be able to create a new user', async () => {
+    const { email, name, password } = {
+      email: `test${randomUUID()}@gmail.com`,
+      name: 'test',
+      password: '123456',
+    }
+
     const response = await request(app.server)
       .post('/users/register')
       .send({
-        email: 'test@gmail.com',
-        name: 'Test',
-        password: '123456',
+        email,
+        name,
+        password,
       })
       .expect(201)
 
     expect(response.status).toEqual(201)
 
-    const user = await knex('users').where('email', 'test@gmail.com').first()
+    const user = await knex('users').where('email', email).first()
 
     expect(user).toMatchObject({
-      email: 'test@gmail.com',
-      name: 'Test',
+      email,
+      name,
       password: expect.any(String),
     })
   })
 
   it('should be able to login with a existent user', async () => {
+    const { email, name, password } = {
+      email: `test${randomUUID()}@gmail.com`,
+      name: 'test',
+      password: '123456',
+    }
+
     const registerResponse = await request(app.server)
       .post('/users/register')
       .send({
-        email: 'test@gmail.com',
-        name: 'Test',
-        password: '123456',
+        email,
+        name,
+        password,
       })
 
     expect(registerResponse.status).toEqual(201)
@@ -53,8 +60,8 @@ describe('User Routes', () => {
     await knex('users').where('email', 'test@gmail.com').first()
 
     const loginResponse = await request(app.server).post('/users/login').send({
-      email: 'test@gmail.com',
-      password: '123456',
+      email,
+      password,
     })
 
     expect(loginResponse.status).toEqual(200)
@@ -72,18 +79,24 @@ describe('User Routes', () => {
   })
 
   it('should not be able to login with a wrong password', async () => {
+    const { email, name, password } = {
+      email: `test${randomUUID()}@gmail.com`,
+      name: 'test',
+      password: '123456',
+    }
+
     const registerResponse = await request(app.server)
       .post('/users/register')
       .send({
-        email: 'test@gmail.com',
-        name: 'Test',
-        password: '123456',
+        email,
+        name,
+        password,
       })
 
     expect(registerResponse.status).toEqual(201)
 
     const loginResponse = await request(app.server).post('/users/login').send({
-      email: 'test@gmail.com',
+      email,
       password: '1234567',
     })
 
